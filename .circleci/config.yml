@@ -1,3 +1,5 @@
+version: 2
+
 defaults: &defaults
   working_directory: ~/app
   docker:
@@ -5,9 +7,8 @@ defaults: &defaults
       environment:
         TERM: xterm
 
-version: 2
 jobs:
-  checkout:
+  checkout-job:
     <<: *defaults
     steps:
       - checkout
@@ -65,24 +66,28 @@ jobs:
       - run: echo "deploy!!"
 
 workflows:
-  verion: 2
-  build-test:
+  version: 2
+  build-and-test-and-deploy:
     jobs:
-      - checkout
+      - checkout-job
       - lint:
           requires:
-            - checkout
+            - checkout-job
+
       - build:
-          requrires:
+          requires:
             - lint
+
       - unit-tests:
           requires:
             - lint
+
       - integration-tests:
           requires:
             - build
+
       - deploy:
           requires:
             - lint
             - unit-tests
-            - initegration-tests
+            - integration-tests
