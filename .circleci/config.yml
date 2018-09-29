@@ -12,23 +12,26 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
+      - restore_cache: &restore_cache
           keys:
-            - yarn-packages-v3-{{ checksum "yarn.lock" }}
-            - v3-deps-{{ .Branch }}
-            - v3-deps-
-      - run:
+            - yarn-packages-v4-{{ checksum "yarn.lock" }}
+            - v4-deps-{{ .Branch }}
+            - v4-deps-
+
+      - run: &install_deps
           name: Install Dependencies
           command: yarn install
 
-      - save_cache:
+      - save_cache: &save_cache
           name: Save Yarn Package Cache
-          key: yarn-packages-v3-{{ checksum "yarn.lock" }}
+          key: yarn-packages-v4-{{ checksum "yarn.lock" }}
           paths:
             - ~/.npm
             - ~/.cache
+            - ~/.cache/yarn
             - node_modules
             - ~/app/node_modules
+
       - run:
           name: Run linters
           command: yarn run lint
@@ -37,22 +40,10 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-v2-{{ checksum "yarn.lock" }}
-            - v2-deps-{{ .Branch }}
-            - v2-deps
-      - run:
-          name: Install Dependencies
-          command: yarn install
+      - restore_cache: *restore_cache
+      - run: *install_deps
+      - save_cache: *save_cache
 
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
-            - node_modules
       - run:
           name: Unit tests
           command: yarn test
@@ -61,22 +52,10 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-v2-{{ checksum "yarn.lock" }}
-            - v2-deps-{{ .Branch }}
-            - v2-deps
-      - run:
-          name: Install Dependencies
-          command: yarn install
+      - restore_cache: *restore_cache
+      - run: *install_deps
+      - save_cache: *save_cache
 
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
-            - node_modules
       - run:
           name: Start background app
           command: yarn start
@@ -90,23 +69,10 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - restore_cache: *restore_cache
+      - run: *install_deps
+      - save_cache: *save_cache
 
-      - restore_cache:
-          keys:
-            - yarn-packages-v2-{{ checksum "yarn.lock" }}
-            - v2-deps-{{ .Branch }}
-            - v2-deps
-      - run:
-          name: Install Dependencies
-          command: yarn install
-
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
-            - node_modules
       - run:
           name: Build app
           command: yarn build
