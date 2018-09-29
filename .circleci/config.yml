@@ -10,7 +10,8 @@ defaults: &defaults
 jobs:
   cache-warm:
     <<: *defaults
-    - checkout
+    steps:
+      - checkout
       - restore_cache: &restore_cache
           keys:
             - yarn-packages-v4-{{ checksum "yarn.lock" }}
