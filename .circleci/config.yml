@@ -1,14 +1,14 @@
 version: 2
 
 defaults: &defaults
-  working_directory: ~/app
+  working_directory: /app
   docker:
     - image: cypress/base:8
       environment:
         TERM: xterm
 
 jobs:
-  lint:
+  prepeare-deps:
     <<: *defaults
     steps:
       - checkout
@@ -28,6 +28,16 @@ jobs:
             - ~/.npm
             - ~/.cache
             - ~/app/node_modules
+
+      - persist_to_workspace:
+          root: /app
+
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /app
+
       - run:
           name: Run linters
           command: yarn run lint
@@ -35,23 +45,9 @@ jobs:
   unit-tests:
     <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-v2-{{ checksum "yarn.lock" }}
-            - v2-deps-{{ .Branch }}
-            - v2-deps
-      - run:
-          name: Install Dependencies
-          command: yarn install
+      - attach_workspace:
+          at: /app
 
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
-            - ~/app/node_modules
       - run:
           name: Unit tests
           command: yarn test
@@ -59,23 +55,9 @@ jobs:
   integration-tests:
     <<: *defaults
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - yarn-packages-v2-{{ checksum "yarn.lock" }}
-            - v2-deps-{{ .Branch }}
-            - v2-deps
-      - run:
-          name: Install Dependencies
-          command: yarn install
+      - attach_workspace:
+          at: /app
 
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
-            - ~/app/node_modules
       - run:
           name: Start background app
           command: yarn start
@@ -88,24 +70,9 @@ jobs:
   build-and-deploy:
     <<: *defaults
     steps:
-      - checkout
+      - attach_workspace:
+          at: /app
 
-      - restore_cache:
-          keys:
-            - yarn-packages-v2-{{ checksum "yarn.lock" }}
-            - v2-deps-{{ .Branch }}
-            - v2-deps
-      - run:
-          name: Install Dependencies
-          command: yarn install
-
-      - save_cache:
-          name: Save Yarn Package Cache
-          key: yarn-packages-v2-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
-            - ~/app/node_modules
       - run:
           name: Build app
           command: yarn build
