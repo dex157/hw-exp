@@ -89,10 +89,10 @@ workflows:
       - lint:
           requires:
             - prepeare-deps
-      - unit-tests
+      - unit-tests:
           requires:
             - prepeare-deps
-      - integration-tests
+      - integration-tests:
           requires:
             - prepeare-deps
 
