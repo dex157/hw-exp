@@ -14,18 +14,18 @@ jobs:
       - checkout
       - restore_cache: &restore_cache
           keys:
-            - yarn-packages-v8-{{ checksum "yarn.lock" }}
-            - yarn-packages-v8-
+            - yarn-packages-v9-{{ checksum "yarn.lock" }}
+            - yarn-packages-v9-
 
       - run: &install_deps
           name: Install Dependencies
           command: |
             yarn install
-            yarn autoclean
+            yarn autoclean --force
 
       - save_cache: &save_cache
           name: Save Yarn Package Cache
-          key: yarn-packages-v8-{{ checksum "yarn.lock" }}
+          key: yarn-packages-v9-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache
             - node_modules
