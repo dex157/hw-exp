@@ -92,14 +92,14 @@ jobs:
             source $BASH_ENV
             echo $CIRCLE_PR_NUMBER
 
-      - run:
-          name: List workspace
-          command: |
-            ls -la build
-            ls -la build/static
-            ls -la build/css
-            ls -la build/js
-            ls -la build/media
+        - run:
+            name: List workspace
+            command: |
+              ls -la build
+              ls -la build/static
+              ls -la build/css
+              ls -la build/js
+              ls -la build/media
 
 workflows:
   version: 2
