@@ -14,9 +14,7 @@ jobs:
       - checkout
       - restore_cache: &restore_cache
           keys:
-            - yarn-packages-v5-{{ checksum "yarn.lock" }}
-            - v5-deps-{{ .Branch }}
-            - v5-deps-
+            - yarn-packages-v6-{{ checksum "yarn.lock" }}
 
       - run: &install_deps
           name: Install Dependencies
@@ -24,8 +22,9 @@ jobs:
 
       - save_cache: &save_cache
           name: Save Yarn Package Cache
-          key: yarn-packages-v5-{{ checksum "yarn.lock" }}
+          key: yarn-packages-v6-{{ checksum "yarn.lock" }}
           paths:
+            - ~/.cache
             - node_modules
 
   lint:
@@ -102,6 +101,7 @@ workflows:
 
       - build-and-deploy:
           requires:
+            - cache-warm
             - lint
             - unit-tests
             - integration-tests
