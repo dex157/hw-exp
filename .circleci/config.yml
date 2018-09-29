@@ -96,9 +96,9 @@ jobs:
           command: |
             ls -la build
             ls -la build/static
-            ls -la build/css
-            ls -la build/js
-            ls -la build/media
+            ls -la build/static/css
+            ls -la build/static/js
+            ls -la build/static/media
 
 workflows:
   version: 2
