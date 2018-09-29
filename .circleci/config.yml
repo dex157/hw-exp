@@ -8,14 +8,10 @@ defaults: &defaults
         TERM: xterm
 
 jobs:
-  checkout-job:
-    <<: *defaults
-    steps:
-      - checkout
-
   lint:
     <<: *defaults
     steps:
+      - checkout
       - run:
           name: Run linters
           command: yarn run lint
@@ -23,6 +19,7 @@ jobs:
   unit-tests:
     <<: *defaults
     steps:
+      - checkout
       - run:
           name: Unit tests
           command: yarn test
@@ -30,6 +27,7 @@ jobs:
   integration-tests:
     <<: *defaults
     steps:
+      - checkout
       - run:
           name: Start background app
           command: yarn start
@@ -39,9 +37,11 @@ jobs:
           name: Cypress tests
           command: yarn run cypress:run
 
-  build:
+  build-and-deploy:
     <<: *defaults
     steps:
+      - checkout
+
       - restore_cache:
           keys:
             - yarn-packages-v2-{{ checksum "yarn.lock" }}
@@ -50,6 +50,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: yarn install
+
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-v2-{{ checksum "yarn.lock" }}
@@ -60,33 +61,19 @@ jobs:
           name: Build app
           command: yarn build
 
-  deploy:
-    <<: *defaults
-    steps:
-      - run: echo "deploy!!"
+      - run:
+          name: Deploy
+          command: echo "deploy!!"
 
 workflows:
   version: 2
-  build-and-test-and-deploy:
+  build-test-deploy:
     jobs:
-      - checkout-job
-      - lint:
-          requires:
-            - checkout-job
+      - lint
+      - unit-tests
+      - integration-tests
 
-      - build:
-          requires:
-            - lint
-
-      - unit-tests:
-          requires:
-            - lint
-
-      - integration-tests:
-          requires:
-            - build
-
-      - deploy:
+      - build-and-deploy:
           requires:
             - lint
             - unit-tests
