@@ -31,6 +31,8 @@ jobs:
 
       - persist_to_workspace:
           root: /app
+          paths:
+            - node_modules
 
   lint:
     <<: *defaults
