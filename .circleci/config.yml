@@ -14,8 +14,8 @@ jobs:
       - checkout
       - restore_cache: &restore_cache
           keys:
-            - yarn-packages-v10-{{ checksum "yarn.lock" }}
-            - yarn-packages-v10-
+            - yarn-packages-v11-{{ checksum "yarn.lock" }}
+            - yarn-packages-v11-
 
       - run: &install_deps
           name: Install Dependencies
@@ -25,9 +25,9 @@ jobs:
 
       - save_cache: &save_cache
           name: Save Yarn Package Cache
-          key: yarn-packages-v10-{{ checksum "yarn.lock" }}
+          key: yarn-packages-v11-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache
+            - ~/.cache/Cypress
             - node_modules
 
       - run:
@@ -59,7 +59,7 @@ jobs:
           name: Cypress tests
           command: yarn run cypress:run
 
-  build-and-deploy:
+  build:
     <<: *defaults
     steps:
       - checkout
@@ -69,7 +69,23 @@ jobs:
           name: Build app
           command: yarn build
 
-      - run:
+      - persist_to_workspace:
+          root: build
+          paths:
+            - index.html
+            - asset-manifest.json
+            - favicon.ico
+            - manifest.json
+            - static
+
+
+    deploy:
+      <<: *defaults
+      steps:
+        - attach_workspace:
+          at: build
+
+        - run:
           name: Set PR number
           command: |
             echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
@@ -77,13 +93,13 @@ jobs:
             echo $CIRCLE_PR_NUMBER
 
       - run:
-          name: Remove service workers
-          command: echo Remove service workers
-
-      - run:
-          name: Remove old build
-          command: echo Remove old build
-
+          name: List workspace
+          command: |
+            ls -la build
+            ls -la build/static
+            ls -la build/css
+            ls -la build/js
+            ls -la build/media
 
 workflows:
   version: 2
@@ -99,8 +115,12 @@ workflows:
           requires:
             - lint
 
-      - build-and-deploy:
+      - build:
           requires:
             - lint
+
+      - deploy:
+          requires:
+            - build
             - unit-tests
             - integration-tests
