@@ -8,7 +8,7 @@ defaults: &defaults
         TERM: xterm
 
 jobs:
-  lint:
+  lint-and-cache-warm:
     <<: *defaults
     steps:
       - checkout
@@ -79,45 +79,45 @@ jobs:
             - static
 
 
-    deploy:
-      <<: *defaults
-      steps:
-        - attach_workspace:
-          at: build
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+        at: build
 
-        - run:
-          name: Set PR number
+      - run:
+        name: Set PR number
+        command: |
+          echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
+          source $BASH_ENV
+          echo $CIRCLE_PR_NUMBER
+
+      - run:
+          name: List workspace
           command: |
-            echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
-            source $BASH_ENV
-            echo $CIRCLE_PR_NUMBER
-
-        - run:
-            name: List workspace
-            command: |
-              ls -la build
-              ls -la build/static
-              ls -la build/css
-              ls -la build/js
-              ls -la build/media
+            ls -la build
+            ls -la build/static
+            ls -la build/css
+            ls -la build/js
+            ls -la build/media
 
 workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - lint
+      - lint-and-cache-warm
 
       - unit-tests:
           requires:
-            - lint
+            - lint-and-cache-warm
 
       - integration-tests:
           requires:
-            - lint
+            - lint-and-cache-warm
 
       - build:
           requires:
-            - lint
+            - lint-and-cache-warm
 
       - deploy:
           requires:
