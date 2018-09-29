@@ -27,7 +27,7 @@ jobs:
           paths:
             - ~/.npm
             - ~/.cache
-            - ~/app/node_modules
+          - node_modules
 
       - persist_to_workspace:
           root: /app
@@ -47,6 +47,7 @@ jobs:
   unit-tests:
     <<: *defaults
     steps:
+      - checkout
       - attach_workspace:
           at: /app
 
@@ -57,6 +58,7 @@ jobs:
   integration-tests:
     <<: *defaults
     steps:
+      - checkout
       - attach_workspace:
           at: /app
 
@@ -72,6 +74,7 @@ jobs:
   build-and-deploy:
     <<: *defaults
     steps:
+      - checkout
       - attach_workspace:
           at: /app
 
