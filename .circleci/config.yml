@@ -39,6 +39,11 @@ jobs:
           paths:
             - node_modules
 
+      - persist_to_workspace:
+          root: ~/.cache
+          paths:
+            - Cypress
+
   unit-tests:
     <<: *defaults
     steps:
@@ -54,7 +59,10 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache: *restore_cache
+      - attach_workspace:
+          at: ~/app
+      - attach_workspace:
+          at: ~/.cache
 
       - run:
           name: Start background app
