@@ -8,7 +8,7 @@ defaults: &defaults
         TERM: xterm
 
 jobs:
-  lint-and-cache-warm:
+  lint-and-workspace-warm:
     <<: *defaults
     steps:
       - checkout
@@ -113,19 +113,19 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
-      - lint-and-cache-warm
+      - lint-and-workspace-warm
 
       - unit-tests:
           requires:
-            - lint-and-cache-warm
+            - lint-and-workspace-warm
 
       - integration-tests:
           requires:
-            - lint-and-cache-warm
+            - lint-and-workspace-warm
 
       - build:
           requires:
-            - lint-and-cache-warm
+            - lint-and-workspace-warm
 
       - deploy:
           requires:
