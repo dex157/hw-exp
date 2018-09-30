@@ -60,9 +60,9 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/app
-      - attach_workspace:
-          at: ~/.cache
+          at:
+            - ~/app
+            - ~/.cache
 
       - run:
           name: Start background app
