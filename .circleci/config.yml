@@ -44,7 +44,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: node_modules
+          at: ~/app
 
       - run:
           name: Unit tests
@@ -70,7 +70,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: node_modules
+          at: ~/app
 
       - run:
           name: Build app
